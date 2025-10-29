@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tia Chica - Marmitex</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cart-bounce {
+            animation: bounce 0.5s ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="min-h-full bg-gradient-to-br from-gray-900 to-gray-800">
+  <div id="app" class="min-h-full"><!-- Tela de Login Admin -->
+   <div id="loginScreen" class="hidden min-h-full flex items-center justify-center p-4">
+    <div class="bg-black rounded-2xl shadow-xl p-8 w-full max-w-md border border-orange-500">
+     <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-orange-400 mb-2">🍽️ Tia Chica</h1>
+      <p class="text-gray-300">Área Administrativa</p>
+     </div>
+     <form id="loginForm" class="space-y-6">
+      <div><label for="username" class="block text-sm font-medium text-gray-300 mb-2">Usuário</label> <input type="text" id="username" class="w-full px-4 py-3 bg-black border border-orange-500 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" required>
+      </div>
+      <div><label for="password" class="block text-sm font-medium text-gray-300 mb-2">Senha</label> <input type="password" id="password" class="w-full px-4 py-3 bg-black border border-orange-500 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" required>
+      </div><button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors"> Entrar </button>
+     </form>
+     <div id="loginError" class="hidden mt-4 p-3 bg-red-900 border border-red-700 text-red-300 rounded-lg text-sm"></div><button onclick="showCustomerScreen()" class="mt-6 w-full text-orange-400 hover:text-orange-300 font-medium"> ← Voltar para pedidos </button>
+    </div>
+   </div><!-- Tela Admin -->
+   <div id="adminScreen" class="hidden min-h-full p-4">
+    <div class="max-w-4xl mx-auto">
+     <header class="bg-black rounded-2xl shadow-lg p-6 mb-6 border border-orange-500">
+      <div class="flex justify-between items-center">
+       <h1 class="text-3xl font-bold text-orange-400">🍽️ Tia Chica - Admin</h1><button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"> Sair </button>
+      </div>
+     </header>
+     <div class="grid md:grid-cols-2 gap-6"><!-- Misturas -->
+      <div class="bg-black rounded-2xl shadow-lg p-6 border border-orange-500">
+       <h2 class="text-2xl font-bold text-gray-100 mb-4">🥘 Misturas do Dia</h2>
+       <div class="space-y-4">
+        <div><label for="newMistura" class="block text-sm font-medium text-gray-300 mb-2">Adicionar Mistura</label>
+         <div class="flex gap-2"><input type="text" id="newMistura" class="flex-1 px-3 py-2 bg-black border border-orange-500 text-white rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Ex: Frango Grelhado"> <button onclick="addMistura()" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"> Adicionar </button>
+         </div>
+        </div>
+        <div id="misturasList" class="space-y-2"></div>
+       </div>
+      </div><!-- Acompanhamentos -->
+      <div class="bg-black rounded-2xl shadow-lg p-6 border border-orange-500">
+       <h2 class="text-2xl font-bold text-gray-100 mb-4">🍚 Acompanhamentos do Dia</h2>
+       <div class="space-y-4">
+        <div><label for="newAcompanhamento" class="block text-sm font-medium text-gray-300 mb-2">Adicionar Acompanhamento</label>
+         <div class="flex gap-2"><input type="text" id="newAcompanhamento" class="flex-1 px-3 py-2 bg-black border border-orange-500 text-white rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Ex: Arroz Branco"> <button onclick="addAcompanhamento()" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"> Adicionar </button>
+         </div>
+        </div>
+        <div id="acompanhamentosList" class="space-y-2"></div>
+       </div>
+      </div>
+     </div><!-- Link do Cliente -->
+     <div class="bg-black rounded-2xl shadow-lg p-6 mt-6 border border-orange-500">
+      <h2 class="text-2xl font-bold text-gray-100 mb-4">🔗 Link para Clientes</h2>
+      <div class="bg-black border border-orange-500 p-4 rounded-lg">
+       <p class="text-sm text-gray-300 mb-2">Compartilhe este link com os clientes:</p>
+       <div class="flex gap-2"><input type="text" id="clientLink" readonly class="flex-1 px-3 py-2 bg-black border border-orange-500 text-white rounded-lg text-sm"> <button onclick="copyLink()" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"> Copiar </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Tela do Cliente -->
+   <div id="customerScreen" class="min-h-full"><!-- Header -->
+    <header class="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 shadow-lg">
+     <div class="max-w-4xl mx-auto">
+      <div class="flex justify-between items-center">
+       <div>
+        <h1 class="text-3xl font-bold mb-2">🍽️ Tia Chica</h1>
+        <p class="text-orange-100">Marmitex caseiro com carinho</p>
+       </div>
+       <div class="flex gap-4"><button onclick="showCart()" class="relative bg-white bg-opacity-20 p-3 rounded-full hover:bg-opacity-30 transition-colors"> 🛒 <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center hidden">0</span> </button> <button onclick="showLoginScreen()" class="bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors text-sm"> Admin </button>
+       </div>
+      </div>
+     </div>
+    </header><!-- Informações do Cliente -->
+    <div class="max-w-4xl mx-auto p-6">
+     <div class="bg-black rounded-2xl shadow-lg p-6 mb-6 border border-orange-500">
+      <h2 class="text-2xl font-bold text-gray-100 mb-4">📝 Suas Informações</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+       <div><label for="customerName" class="block text-sm font-medium text-gray-300 mb-2">Nome Completo *</label> <input type="text" id="customerName" class="w-full px-4 py-3 bg-black border border-orange-500 text-white rounded-lg focus:ring-2 focus:ring-orange-500" required>
+       </div>
+       <div><label for="pickupTime" class="block text-sm font-medium text-gray-300 mb-2">Horário de Retirada *</label> <input type="time" id="pickupTime" class="w-full px-4 py-3 bg-black border border-orange-500 text-white rounded-lg focus:ring-2 focus:ring-orange-500" required>
+       </div>
+      </div>
+      <div class="mt-4"><label for="customerObservations" class="block text-sm font-medium text-gray-300 mb-2">Observações (opcional)</label> <textarea id="customerObservations" rows="3" class="w-full px-4 py-3 bg-black border border-orange-500 text-white rounded-lg focus:ring-2 focus:ring-orange-500 resize-none" placeholder="Ex: Sem cebola, pouco sal, etc..."></textarea>
+      </div>
+     </div><!-- Seleção de Marmitex -->
+     <div class="bg-black rounded-2xl shadow-lg p-6 mb-6 border border-orange-500">
+      <h2 class="text-2xl font-bold text-gray-100 mb-6">🍱 Monte sua Marmitex</h2><!-- Tipo de Marmitex -->
+      <div class="mb-6">
+       <h3 class="text-lg font-semibold text-gray-300 mb-3">Tamanho</h3>
+       <div class="grid md:grid-cols-2 gap-4"><label class="cursor-pointer"> <input type="radio" name="marmitexSize" value="pequena" class="sr-only" onchange="updateMarmitexSize()">
+         <div class="border-2 border-orange-500 rounded-lg p-4 hover:border-orange-400 transition-colors marmitex-option bg-black">
+          <div class="text-center">
+           <div class="text-2xl mb-2">
+            🥡
+           </div>
+           <h4 class="font-semibold text-gray-100">Marmitex Pequena</h4>
+           <p class="text-sm text-gray-300">1 mistura + até 2 acompanhamentos</p>
+          </div>
+         </div></label> <label class="cursor-pointer"> <input type="radio" name="marmitexSize" value="media" class="sr-only" onchange="updateMarmitexSize()">
+         <div class="border-2 border-orange-500 rounded-lg p-4 hover:border-orange-400 transition-colors marmitex-option bg-black">
+          <div class="text-center">
+           <div class="text-2xl mb-2">
+            🍱
+           </div>
+           <h4 class="font-semibold text-gray-100">Marmitex Média</h4>
+           <p class="text-sm text-gray-300">2 misturas + até 2 acompanhamentos</p>
+          </div>
+         </div></label>
+       </div>
+      </div><!-- Misturas -->
+      <div id="misturasSection" class="mb-6 hidden">
+       <h3 class="text-lg font-semibold text-gray-300 mb-3">🥘 Misturas <span id="misturasLimit" class="text-sm text-gray-400"></span></h3>
+       <div id="misturasOptions" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div><!-- Acompanhamentos -->
+      <div id="acompanhamentosSection" class="mb-6 hidden">
+       <h3 class="text-lg font-semibold text-gray-300 mb-3">🍚 Acompanhamentos <span class="text-sm text-gray-400">(máximo 2)</span></h3>
+       <div id="acompanhamentosOptions" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div><!-- Quantidade e Botão Adicionar ao Carrinho -->
+      <div id="addToCartSection" class="hidden">
+       <div class="mb-4">
+        <h3 class="text-lg font-semibold text-gray-300 mb-3">📦 Quantidade</h3>
+        <div class="flex items-center justify-center gap-4"><button onclick="decreaseQuantity()" class="bg-orange-600 text-white w-10 h-10 rounded-full hover:bg-orange-700 transition-colors font-bold">-</button> <span id="quantityDisplay" class="text-2xl font-bold text-gray-100 min-w-[3rem] text-center">1</span> <button onclick="increaseQuantity()" class="bg-orange-600 text-white w-10 h-10 rounded-full hover:bg-orange-700 transition-colors font-bold">+</button>
+        </div>
+       </div><button onclick="addToCart()" class="w-full bg-orange-600 text-white py-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors text-lg"> Adicionar ao Carrinho 🛒 </button>
+      </div>
+     </div><!-- Mensagem de Status -->
+     <div id="statusMessage" class="hidden mb-6"></div>
+    </div>
+   </div><!-- Modal do Carrinho -->
+   <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-black rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-orange-500">
+     <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+       <h2 class="text-2xl font-bold text-gray-100">🛒 Seu Carrinho</h2><button onclick="hideCart()" class="text-gray-400 hover:text-gray-200 text-2xl">×</button>
+      </div>
+      <div id="cartItems" class="space-y-4 mb-6"></div>
+      <div class="border-t border-gray-700 pt-4"><button onclick="sendToWhatsApp()" class="w-full bg-green-600 text-white py-4 rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg"> Enviar Pedido via WhatsApp 📱 </button>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+        // Estado da aplicação
+        let currentScreen = 'customer';
+        let misturas = [];
+        let acompanhamentos = [];
+        let cart = [];
+        let currentMarmitex = {
+            size: '',
+            misturas: [],
+            acompanhamentos: [],
+            quantity: 1
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStoredData();
+            showCustomerScreen();
+            updateClientLink();
+        });
+
+        // Gerenciamento de telas
+        function showCustomerScreen() {
+            hideAllScreens();
+            document.getElementById('customerScreen').classList.remove('hidden');
+            currentScreen = 'customer';
+            loadMenuOptions();
+        }
+
+        function showLoginScreen() {
+            hideAllScreens();
+            document.getElementById('loginScreen').classList.remove('hidden');
+            currentScreen = 'login';
+        }
+
+        function showAdminScreen() {
+            hideAllScreens();
+            document.getElementById('adminScreen').classList.remove('hidden');
+            currentScreen = 'admin';
+            loadAdminData();
+        }
+
+        function hideAllScreens() {
+            document.getElementById('customerScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('adminScreen').classList.add('hidden');
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'tiachica' && password === '1982') {
+                showAdminScreen();
+                document.getElementById('loginError').classList.add('hidden');
+            } else {
+                const errorDiv = document.getElementById('loginError');
+                errorDiv.textContent = 'Usuário ou senha incorretos';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+
+        function logout() {
+            showCustomerScreen();
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Administração
+        function addMistura() {
+            const input = document.getElementById('newMistura');
+            const mistura = input.value.trim();
+            if (mistura) {
+                misturas.push(mistura);
+                input.value = '';
+                saveData();
+                loadAdminData();
+                updateClientLink();
+            }
+        }
+
+        function addAcompanhamento() {
+            const input = document.getElementById('newAcompanhamento');
+            const acompanhamento = input.value.trim();
+            if (acompanhamento) {
+                acompanhamentos.push(acompanhamento);
+                input.value = '';
+                saveData();
+                loadAdminData();
+                updateClientLink();
+            }
+        }
+
+        function removeMistura(index) {
+            misturas.splice(index, 1);
+            saveData();
+            loadAdminData();
+            updateClientLink();
+        }
+
+        function removeAcompanhamento(index) {
+            acompanhamentos.splice(index, 1);
+            saveData();
+            loadAdminData();
+            updateClientLink();
+        }
+
+        function loadAdminData() {
+            const misturasList = document.getElementById('misturasList');
+            const acompanhamentosList = document.getElementById('acompanhamentosList');
+            
+            misturasList.innerHTML = misturas.map((mistura, index) => `
+                <div class="flex justify-between items-center bg-gray-700 p-3 rounded-lg">
+                    <span class="text-gray-100">${mistura}</span>
+                    <button onclick="removeMistura(${index})" class="text-red-400 hover:text-red-300">🗑️</button>
+                </div>
+            `).join('');
+            
+            acompanhamentosList.innerHTML = acompanhamentos.map((acompanhamento, index) => `
+                <div class="flex justify-between items-center bg-gray-700 p-3 rounded-lg">
+                    <span class="text-gray-100">${acompanhamento}</span>
+                    <button onclick="removeAcompanhamento(${index})" class="text-red-400 hover:text-red-300">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        // Cliente - Seleção de marmitex
+        function updateMarmitexSize() {
+            const size = document.querySelector('input[name="marmitexSize"]:checked').value;
+            currentMarmitex.size = size;
+            currentMarmitex.misturas = [];
+            currentMarmitex.acompanhamentos = [];
+            
+            // Atualizar visual das opções
+            document.querySelectorAll('.marmitex-option').forEach(option => {
+                option.classList.remove('border-orange-500', 'bg-gray-600');
+            });
+            document.querySelector(`input[value="${size}"]`).parentElement.querySelector('.marmitex-option').classList.add('border-orange-500', 'bg-gray-600');
+            
+            // Mostrar seções
+            document.getElementById('misturasSection').classList.remove('hidden');
+            document.getElementById('acompanhamentosSection').classList.remove('hidden');
+            
+            // Atualizar limite de misturas
+            const limit = size === 'pequena' ? 1 : 2;
+            document.getElementById('misturasLimit').textContent = `(máximo ${limit})`;
+            
+            loadMenuOptions();
+            updateAddToCartButton();
+        }
+
+        function loadMenuOptions() {
+            loadMisturasOptions();
+            loadAcompanhamentosOptions();
+        }
+
+        function loadMisturasOptions() {
+            const container = document.getElementById('misturasOptions');
+            container.innerHTML = misturas.map((mistura, index) => `
+                <label class="cursor-pointer">
+                    <input type="checkbox" class="sr-only mistura-checkbox" value="${mistura}" onchange="updateMisturas()">
+                    <div class="border-2 border-gray-600 rounded-lg p-3 hover:border-orange-500 transition-colors mistura-option bg-black">
+                        <div class="text-center">
+                            <div class="font-medium text-gray-100">${mistura}</div>
+                        </div>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        function loadAcompanhamentosOptions() {
+            const container = document.getElementById('acompanhamentosOptions');
+            container.innerHTML = acompanhamentos.map((acompanhamento, index) => `
+                <label class="cursor-pointer">
+                    <input type="checkbox" class="sr-only acompanhamento-checkbox" value="${acompanhamento}" onchange="updateAcompanhamentos()">
+                    <div class="border-2 border-gray-600 rounded-lg p-3 hover:border-orange-500 transition-colors acompanhamento-option bg-black">
+                        <div class="text-center">
+                            <div class="font-medium text-gray-100">${acompanhamento}</div>
+                        </div>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        function updateMisturas() {
+            const checkboxes = document.querySelectorAll('.mistura-checkbox:checked');
+            const maxMisturas = currentMarmitex.size === 'pequena' ? 1 : 2;
+            
+            if (checkboxes.length > maxMisturas) {
+                // Desmarcar o último selecionado
+                checkboxes[checkboxes.length - 1].checked = false;
+                showStatusMessage(`Máximo ${maxMisturas} mistura(s) para marmitex ${currentMarmitex.size}`, 'warning');
+                return;
+            }
+            
+            currentMarmitex.misturas = Array.from(checkboxes).map(cb => cb.value);
+            updateVisualSelection('.mistura-checkbox', '.mistura-option');
+            updateAddToCartButton();
+        }
+
+        function updateAcompanhamentos() {
+            const checkboxes = document.querySelectorAll('.acompanhamento-checkbox:checked');
+            
+            if (checkboxes.length > 2) {
+                checkboxes[checkboxes.length - 1].checked = false;
+                showStatusMessage('Máximo 2 acompanhamentos por marmitex', 'warning');
+                return;
+            }
+            
+            currentMarmitex.acompanhamentos = Array.from(checkboxes).map(cb => cb.value);
+            updateVisualSelection('.acompanhamento-checkbox', '.acompanhamento-option');
+            updateAddToCartButton();
+        }
+
+        function updateVisualSelection(checkboxSelector, optionSelector) {
+            document.querySelectorAll(optionSelector).forEach(option => {
+                option.classList.remove('border-orange-500', 'bg-gray-600');
+            });
+            
+            document.querySelectorAll(`${checkboxSelector}:checked`).forEach(checkbox => {
+                checkbox.parentElement.querySelector(optionSelector).classList.add('border-orange-500', 'bg-gray-600');
+            });
+        }
+
+        function updateAddToCartButton() {
+            const hasSize = currentMarmitex.size;
+            const hasMisturas = currentMarmitex.misturas.length > 0;
+            const hasAcompanhamentos = currentMarmitex.acompanhamentos.length > 0;
+            
+            if (hasSize && hasMisturas && hasAcompanhamentos) {
+                document.getElementById('addToCartSection').classList.remove('hidden');
+            } else {
+                document.getElementById('addToCartSection').classList.add('hidden');
+            }
+        }
+
+        // Carrinho
+        function addToCart() {
+            const name = document.getElementById('customerName').value.trim();
+            const time = document.getElementById('pickupTime').value;
+            
+            if (!name || !time) {
+                showStatusMessage('Por favor, preencha seu nome e horário de retirada', 'error');
+                return;
+            }
+            
+            const observations = document.getElementById('customerObservations').value.trim();
+            
+            // Adicionar múltiplas marmitex baseado na quantidade
+            for (let i = 0; i < currentMarmitex.quantity; i++) {
+                const marmitex = {
+                    id: Date.now() + i,
+                    size: currentMarmitex.size,
+                    misturas: [...currentMarmitex.misturas],
+                    acompanhamentos: [...currentMarmitex.acompanhamentos],
+                    customerName: name,
+                    pickupTime: time,
+                    observations: observations
+                };
+                cart.push(marmitex);
+            }
+            updateCartCount();
+            
+            // Reset seleção
+            currentMarmitex = { size: '', misturas: [], acompanhamentos: [], quantity: 1 };
+            document.getElementById('quantityDisplay').textContent = '1';
+            document.getElementById('customerObservations').value = '';
+            document.querySelector('input[name="marmitexSize"]:checked').checked = false;
+            document.querySelectorAll('.mistura-checkbox:checked').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.acompanhamento-checkbox:checked').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.marmitex-option, .mistura-option, .acompanhamento-option').forEach(option => {
+                option.classList.remove('border-orange-500', 'bg-gray-600');
+            });
+            document.getElementById('misturasSection').classList.add('hidden');
+            document.getElementById('acompanhamentosSection').classList.add('hidden');
+            document.getElementById('addToCartSection').classList.add('hidden');
+            
+            const quantityText = currentMarmitex.quantity === 1 ? 'Marmitex adicionada' : `${currentMarmitex.quantity} marmitex adicionadas`;
+            showStatusMessage(`${quantityText} ao carrinho! 🛒`, 'success');
+            
+            // Animação no carrinho
+            const cartButton = document.querySelector('button[onclick="showCart()"]');
+            cartButton.classList.add('cart-bounce');
+            setTimeout(() => cartButton.classList.remove('cart-bounce'), 500);
+        }
+
+        function updateCartCount() {
+            const countElement = document.getElementById('cartCount');
+            if (cart.length > 0) {
+                countElement.textContent = cart.length;
+                countElement.classList.remove('hidden');
+            } else {
+                countElement.classList.add('hidden');
+            }
+        }
+
+        function showCart() {
+            document.getElementById('cartModal').classList.remove('hidden');
+            loadCartItems();
+        }
+
+        function hideCart() {
+            document.getElementById('cartModal').classList.add('hidden');
+        }
+
+        function loadCartItems() {
+            const container = document.getElementById('cartItems');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-8">Carrinho vazio</div>';
+                return;
+            }
+            
+            container.innerHTML = cart.map((item, index) => `
+                <div class="border border-gray-600 rounded-lg p-4 bg-gray-700">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="font-semibold text-gray-100">Marmitex ${item.size.charAt(0).toUpperCase() + item.size.slice(1)}</h3>
+                        <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-300">🗑️</button>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <div><strong class="text-gray-200">Cliente:</strong> ${item.customerName}</div>
+                        <div><strong class="text-gray-200">Retirada:</strong> ${item.pickupTime}</div>
+                        <div><strong class="text-gray-200">Misturas:</strong> ${item.misturas.join(', ')}</div>
+                        <div><strong class="text-gray-200">Acompanhamentos:</strong> ${item.acompanhamentos.join(', ')}</div>
+                        ${item.observations ? `<div><strong class="text-gray-200">Observações:</strong> ${item.observations}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartCount();
+            loadCartItems();
+        }
+
+        function sendToWhatsApp() {
+            if (cart.length === 0) {
+                showStatusMessage('Carrinho vazio', 'error');
+                return;
+            }
+            
+            let message = '🍽️ *PEDIDO TIA CHICA* 🍽️\n\n';
+            let totalValue = 0;
+            
+            // Agrupar pedidos iguais
+            const groupedOrders = {};
+            
+            cart.forEach(item => {
+                const key = `${item.size}|${item.misturas.sort().join(',')}|${item.acompanhamentos.sort().join(',')}|${item.customerName}|${item.pickupTime}|${item.observations || ''}`;
+                
+                if (groupedOrders[key]) {
+                    groupedOrders[key].quantity++;
+                } else {
+                    groupedOrders[key] = {
+                        ...item,
+                        quantity: 1
+                    };
+                }
+            });
+            
+            let orderNumber = 1;
+            Object.values(groupedOrders).forEach(item => {
+                const itemPrice = item.size === 'pequena' ? 22.00 : 25.00;
+                const itemTotal = itemPrice * item.quantity;
+                totalValue += itemTotal;
+                
+                message += `*Pedido ${orderNumber} - ${item.size.toUpperCase()}*\n`;
+                message += `👤 Cliente: ${item.customerName}\n`;
+                message += `⏰ Retirada: ${item.pickupTime}\n`;
+                message += `🥘 Misturas: ${item.misturas.join(', ')}\n`;
+                message += `🍚 Acompanhamentos: ${item.acompanhamentos.join(', ')}\n`;
+                if (item.observations) {
+                    message += `📝 Observações: ${item.observations}\n`;
+                }
+                message += `📦 Quantidade: ${item.quantity}x\n`;
+                message += `💰 Valor unitário: R$ ${itemPrice.toFixed(2)}\n`;
+                message += `💰 Subtotal: R$ ${itemTotal.toFixed(2)}\n\n`;
+                
+                orderNumber++;
+            });
+            
+            message += `📱 Total de marmitex: ${cart.length}\n`;
+            message += `💵 *VALOR TOTAL: R$ ${totalValue.toFixed(2)}*`;
+            
+            const whatsappUrl = `https://wa.me/+5512988444600?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+            
+            // Limpar carrinho após envio
+            cart = [];
+            updateCartCount();
+            hideCart();
+            showStatusMessage('Pedido enviado via WhatsApp! 📱', 'success');
+        }
+
+        // Utilitários
+        function showStatusMessage(message, type) {
+            const container = document.getElementById('statusMessage');
+            const bgColor = type === 'success' ? 'bg-green-900 border-green-600 text-green-300' : 
+                           type === 'warning' ? 'bg-yellow-900 border-yellow-600 text-yellow-300' : 
+                           'bg-red-900 border-red-600 text-red-300';
+            
+            container.innerHTML = `
+                <div class="p-4 border rounded-lg ${bgColor} fade-in">
+                    ${message}
+                </div>
+            `;
+            container.classList.remove('hidden');
+            
+            setTimeout(() => {
+                container.classList.add('hidden');
+            }, 3000);
+        }
+
+        function updateClientLink() {
+            if (misturas.length === 0 && acompanhamentos.length === 0) {
+                const baseUrl = window.location.origin + window.location.pathname;
+                document.getElementById('clientLink').value = baseUrl;
+                return;
+            }
+            
+            // Gerar código super curto de apenas 4 caracteres
+            const shortCode = Math.random().toString(36).substr(2, 4).toUpperCase();
+            
+            // Salvar o mapeamento do código curto
+            localStorage.setItem(`tc_${shortCode}`, JSON.stringify({m: misturas, a: acompanhamentos}));
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shortLink = `${baseUrl}?c=${shortCode}`;
+            document.getElementById('clientLink').value = shortLink;
+        }
+
+        function copyLink() {
+            // Gerar um novo código super curto de apenas 4 caracteres
+            const shortCode = Math.random().toString(36).substr(2, 4).toUpperCase();
+            
+            // Salvar o mapeamento do código curto
+            localStorage.setItem(`tc_${shortCode}`, JSON.stringify({m: misturas, a: acompanhamentos}));
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shortLink = `${baseUrl}?c=${shortCode}`;
+            document.getElementById('clientLink').value = shortLink;
+            
+            const linkInput = document.getElementById('clientLink');
+            linkInput.select();
+            document.execCommand('copy');
+            showStatusMessage(`Link ${shortCode} copiado!`, 'success');
+        }
+
+        // Armazenamento
+        function saveData() {
+            localStorage.setItem('tiaChicaMisturas', JSON.stringify(misturas));
+            localStorage.setItem('tiaChicaAcompanhamentos', JSON.stringify(acompanhamentos));
+        }
+
+        function loadStoredData() {
+            const storedMisturas = localStorage.getItem('tiaChicaMisturas');
+            const storedAcompanhamentos = localStorage.getItem('tiaChicaAcompanhamentos');
+            
+            if (storedMisturas) misturas = JSON.parse(storedMisturas);
+            if (storedAcompanhamentos) acompanhamentos = JSON.parse(storedAcompanhamentos);
+            
+            // Carregar dados da URL se disponível
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Verificar se é um link curto
+            const shortCode = urlParams.get('c');
+            if (shortCode) {
+                const storedData = localStorage.getItem(`tc_${shortCode}`);
+                if (storedData) {
+                    try {
+                        const data = JSON.parse(storedData);
+                        if (data.m) misturas = data.m;
+                        if (data.a) acompanhamentos = data.a;
+                    } catch (e) {
+                        console.error('Erro ao carregar link curto:', e);
+                    }
+                }
+            } else {
+                // Formato antigo (compatibilidade)
+                const urlMisturas = urlParams.get('misturas');
+                const urlAcompanhamentos = urlParams.get('acompanhamentos');
+                
+                if (urlMisturas) misturas = urlMisturas.split('|');
+                if (urlAcompanhamentos) acompanhamentos = urlAcompanhamentos.split('|');
+            }
+        }
+
+        // Controle de quantidade
+        function increaseQuantity() {
+            if (currentMarmitex.quantity < 10) {
+                currentMarmitex.quantity++;
+                document.getElementById('quantityDisplay').textContent = currentMarmitex.quantity;
+            }
+        }
+
+        function decreaseQuantity() {
+            if (currentMarmitex.quantity > 1) {
+                currentMarmitex.quantity--;
+                document.getElementById('quantityDisplay').textContent = currentMarmitex.quantity;
+            }
+        }
+
+        // Event listeners para Enter
+        document.getElementById('newMistura').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addMistura();
+        });
+
+        document.getElementById('newAcompanhamento').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addAcompanhamento();
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99634bbae2f7f1ce',t:'MTc2MTc0NzQ0MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
